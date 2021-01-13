@@ -122,7 +122,7 @@ rf_recipe <- head(training(plant_split)) %>%
 
 #Define a new model 
 rf_tune <- parsnip::rand_forest(trees = 100, mtry = tune(), min_n = tune()) %>% #mtry and min_n parameters are set to "tune()"
-  parsnip::set_engine("ranger") %>% #use ranger package
+  parsnip::set_engine("randomForest") %>% #use ranger package
   parsnip::set_mode("classification") #set to classification
 
 #define new workflow with recipe and model
