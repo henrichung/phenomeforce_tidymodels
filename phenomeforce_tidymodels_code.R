@@ -5,7 +5,7 @@
 #Date: Oct 6, 2020
 ######################
 
-list.of.packages <- c("tidyverse", "tidymodels", "ranger", "kknn")
+list.of.packages <- c("tidyverse", "tidymodels", "ranger", "kknn", "randomForest")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages, repos = "https://cloud.r-project.org")
 invisible(capture.output(lapply(list.of.packages, library, character.only = TRUE, warn.conflicts = FALSE, quietly = T)))
@@ -131,7 +131,14 @@ tune_wf <- workflows::workflow() %>%
   workflows::add_model(rf_tune)
 
 #tune the models
-tune_res <- tune::tune_grid(tune_wf, resamples = plant_folds, grid = 5)
+control = control_grid(extract = function (x) extract_model(x)) #extract models used in tuning (WARNING: models may take up a large amount of memory)
+tune_res <- tune::tune_grid(tune_wf, resamples = plant_folds, grid = 5, control = control)
+head(tune_res)
+#Check variable important by mean decrease in Gini impurity
+model <- tune_res$.extracts[[1]]$.extracts[[1]] 
+model
+randomForest::importance(model)
+
 
 #collect metrics for tuning
 tune_metrics <- tune::collect_metrics(tune_res)
